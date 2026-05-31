@@ -1,0 +1,101 @@
+Swag Labs UI: Automated Test Scenarios
+========================================
+
+Target:    https://www.saucedemo.com
+Framework: Playwright + TypeScript (Page Object Model)
+
+Scenarios were prioritized by user-facing risk. The two highest-value paths are
+authentication (it gates the whole app) and the purchase funnel (cart -> checkout
+-> confirmation, where financial correctness matters most). Product discovery and
+navigation follow, and SauceDemo's seeded "problem" accounts are used for defect
+detection rather than only happy-path coverage.
+
+AUTHENTICATION  (tests/auth/login.spec.ts)
+- Standard user logs in and lands on the inventory
+- Locked-out user is blocked with the correct error
+- Invalid password is rejected
+- Unknown username is rejected
+- Missing username shows a validation error
+- Missing password shows a validation error
+- Error message can be dismissed
+
+INVENTORY  (tests/inventory/inventory.spec.ts)
+- Full product catalog is displayed (six products)
+- Every product shows a price and an add-to-cart button
+- Adding a product updates the cart badge
+- Removing a product reverts the cart badge
+- Multiple items are reflected in the cart badge
+
+SORTING  (tests/inventory/sorting.spec.ts)
+- Sort by name A->Z
+- Sort by name Z->A
+- Sort by price low->high
+- Sort by price high->low
+
+PRODUCT DETAIL  (tests/product/product-detail.spec.ts)
+- Opening a product shows its correct name, price, and description
+- Add to cart works from the detail page
+- Remove from cart works from the detail page
+- Back to products returns to the inventory
+- An added item stays in the cart after returning to the inventory
+
+CART  (tests/cart/cart.spec.ts)
+- Added items appear with the correct prices
+- Each cart line has a quantity of 1
+- Removing an item updates the cart and the badge
+- Continue Shopping returns to the inventory with the cart intact
+- The cart is restored after logging out and back in
+- Checkout proceeds to the customer-information step
+
+CHECKOUT: INFORMATION  (tests/checkout/checkout-info.spec.ts)
+- Valid information advances to the overview step
+- Missing first name is rejected
+- Missing last name is rejected
+- Missing postal code is rejected
+- Cancel returns to the cart
+
+CHECKOUT: OVERVIEW  (tests/checkout/checkout-overview.spec.ts)
+- The items being purchased are listed, with their prices
+- Item total, tax (8%), and grand total are calculated correctly
+- Finish completes the order
+- Cancel returns to the inventory
+
+CHECKOUT: COMPLETION  (tests/checkout/checkout-complete.spec.ts)
+- The order confirmation is shown
+- Back Home returns to the inventory with an empty cart
+
+END-TO-END  (tests/e2e/purchase-journey.spec.ts)
+- A standard user logs in, adds items, and completes a full purchase,
+  with checkpoints at each stage (this one includes login through the UI)
+
+NAVIGATION  (tests/navigation/navigation.spec.ts)
+- Logout returns to the login page
+- Reset App State clears the cart
+- All Items returns to the inventory from another page
+- About link points to the Sauce Labs site
+- The footer shows social links and copyright
+
+SPECIAL USERS  (tests/users/special-users.spec.ts)
+- problem_user, error_user, visual_user can each log in and reach the inventory
+- performance_glitch_user loads despite the deliberate latency (handled with
+  auto-retrying waits, not fixed sleeps)
+
+DEFECT WATCH (non-blocking lane)  (tests/defect-watch/seeded-defects.spec.ts)
+- problem_user image defect, documented via test.fail(): each product SHOULD
+  have a distinct image, but this user is seeded to render the same broken one
+- error_user functional defects, documented via test.fail(): the sort dropdown
+  SHOULD reorder the catalog and a started order SHOULD complete on Finish, but
+  this user is seeded so both silently do nothing
+- Run as its own lane (npm run test:defect-watch; a separate, non-blocking CI
+  job). These assert a third party's bugs, so the day SauceDemo fixes one the
+  test "unexpectedly passes" and the lane goes red, which must not block the
+  real regression suite.
+
+Notes
+-----
+- Most tests reuse an authenticated session (storageState) for speed; the login
+  spec, the e2e journey, and the special-user / defect-watch specs deliberately
+  start logged out.
+- visual_user's CSS/layout defects are best caught with visual-regression
+  snapshots (toHaveScreenshot); noted as future work rather than faked.
+  

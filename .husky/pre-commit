@@ -1,0 +1,11 @@
+# GUI Git clients (VS Code, GitHub Desktop, ...) don't inherit your shell's PATH,
+# so `npx` can be "command not found" here even though it works in the terminal.
+# Add the usual Node install locations and load nvm if present, so the hook
+# resolves npx the same way your shell does. Harmless no-ops where a path/file is
+# absent (e.g. on Windows Git Bash), so this stays cross-platform.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  . "$HOME/.nvm/nvm.sh"
+fi
+
+npx lint-staged

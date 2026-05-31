@@ -1,0 +1,54 @@
+{
+  "name": "playwright-api-ui-automation",
+  "version": "1.0.0",
+  "description": "Playwright UI + API automation suite for Swag Labs and Swagger Petstore",
+  "author": "Ivan Wize",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "test": "playwright test --grep-invert @defect-watch",
+    "test:ui": "playwright test --project=chromium",
+    "test:ui:all": "playwright test --project=chromium --project=firefox --project=webkit --project=mobile-chrome",
+    "test:api": "playwright test --project=api",
+    "test:defect-watch": "playwright test --project=defect-watch",
+    "test:headed": "playwright test --project=chromium --headed",
+    "test:debug": "playwright test --project=chromium --debug",
+    "test:ui-mode": "playwright test --ui",
+    "report": "playwright show-report",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.0",
+    "dotenv": "^16.4.0",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-playwright": "^2.1.0",
+    "globals": "^14.0.0",
+    "husky": "^9.1.0",
+    "lint-staged": "^15.3.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.19.0",
+    "zod": "^3.24.0"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
