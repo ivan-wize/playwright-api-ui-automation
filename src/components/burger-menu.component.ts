@@ -50,7 +50,9 @@ export class BurgerMenuComponent {
     return target
       .evaluate((el) => {
         const r = el.getBoundingClientRect();
-        return r.bottom > 0 && r.right > 0 && r.top < window.innerHeight && r.left < window.innerWidth;
+        return (
+          r.bottom > 0 && r.right > 0 && r.top < window.innerHeight && r.left < window.innerWidth
+        );
       })
       .catch(() => false);
   }
