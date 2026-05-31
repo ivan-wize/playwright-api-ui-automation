@@ -9,7 +9,7 @@ Both share one toolchain (TypeScript in strict mode, Zod for API contract valida
 
 ## Prerequisites
 
-You need exactly two tools: **Node.js 20** and **Git**. Pick your OS below. Every command is safe to copy and paste, but copy only what's **inside** each code box, not the fence lines that frame it. (On GitHub, the copy button in the box's top-right corner does this for you; in an editor, select just the command line.) Already have them? Skip ahead; to check, run `node --version` (want `v20.x`) and `git --version`.
+You need two tools: **Node.js 20** and **Git**. Pick your OS below; if both are already installed, skip ahead. To confirm, run `node --version` (expect `v20.x`) and `git --version`. When copying a command, copy only what's **inside** each code box, not the fence lines that frame it. (On GitHub, the copy button in the box's top-right corner does this for you; in an editor, select just the command line.)
 
 ### macOS
 
@@ -25,7 +25,7 @@ On Apple Silicon, the installer ends by printing two `echo`/`eval` lines that ad
 brew install git node@20
 ```
 
-Prefer Apple's own tools? `xcode-select --install` gets you Git, and Node ships a macOS `.pkg` installer at [nodejs.org](https://nodejs.org), no Homebrew needed.
+If you prefer Apple's own tools, `xcode-select --install` provides Git, and Node ships a macOS `.pkg` installer at [nodejs.org](https://nodejs.org), with no Homebrew needed.
 
 ### Windows
 
@@ -57,7 +57,7 @@ On Fedora/RHEL, swap the first command for `sudo dnf install git`.
 
 This repo pins Node 20 in `.nvmrc`. If you use nvm (or [nvm-windows](https://github.com/coreybutler/nvm-windows)), run `nvm use` inside the project folder and it picks up the pin automatically; `npm run setup` also checks your version before doing anything.
 
-New to the command line? You only need those two tools and the steps below. Every command is safe to copy and paste, and runs in any terminal (macOS Terminal, Windows PowerShell or CMD, or Git Bash).
+If you are new to the command line, you only need those two tools and the steps below. Every command runs in any terminal (macOS Terminal, Windows PowerShell or CMD, or Git Bash).
 
 ## Quick start
 
@@ -144,3 +144,7 @@ GitHub Actions runs four jobs on every push and PR to `main`: static checks (typ
 - **Browsers missing:** run `npx playwright install`.
 - **Installs hang or can't connect:** a corporate VPN or proxy may be blocking the download hosts; try off-VPN or ask IT.
 - **Clean slate:** delete `node_modules` and `.auth`, then re-run `npm run setup`.
+
+## License
+
+Released under the [MIT License](LICENSE).
