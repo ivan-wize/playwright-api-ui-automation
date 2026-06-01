@@ -74,6 +74,7 @@ tests/defect-watch/  seeded-defect checks, run as a separate non-blocking lane
 setup/               one-time login that saves a reusable session
 api/                 API client, schemas, fixtures, specs, and api-tests.md
 flows.txt            the UI scenarios, in plain language
+BUGS.md              defects and quality findings (UI + API)
 ```
 
 `src/` (the reusable framework) is kept separate from `tests/` (the specs) so the page objects stay a library rather than logic copied into each test.
@@ -92,6 +93,7 @@ GitHub Actions runs four jobs on every push and PR to `main`: static checks (typ
 
 ## Notes
 
+- **Defects found during testing are written up in [BUGS.md](BUGS.md).** A short list of the SauceDemo seeded defects and the Petstore quality observations the suite surfaced, each linked to the test or code that covers it.
 - **The seeded-defect failures are expected, and isolated.** `problem_user`'s "distinct image" test and `error_user`'s "sort" and "Finish" tests each track a real Swag Labs defect via Playwright's `test.fail()`. They live in their own non-blocking lane (`tests/defect-watch/`, run with `npm run test:defect-watch`) precisely so that if one flips to an unexpected pass (meaning SauceDemo fixed the bug) only that lane goes red, not the blocking suite. When that happens, remove the marker.
 - **Occasional API errors are usually the sandbox, not you.** The public Petstore is shared, so bad data from other users can make a search return a 500. Those cases skip with a note, and a re-run usually clears it (CI retries twice).
 
