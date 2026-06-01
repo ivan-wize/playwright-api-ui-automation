@@ -41,6 +41,7 @@ The full suite (UI + API) runs with `npm test`; `npm run report` opens the last 
 **Query** (`pet-find-by-status.spec.ts`)
 
 - `GET /pet/findByStatus` for `available` / `pending` / `sold`: asserts the filter contract, i.e. every returned pet that carries a `status` matches the queried one
+- A positive-membership check: create an `available` pet, then poll `findByStatus(available)` until our own id appears, proving the filter actually surfaces a pet we know exists (so an always-empty response can't pass the contract above vacuously)
 - A dedicated `available` check that requires a `200` (polling through transient 5xx) and a non-empty result: a safety net so the skip handling below can never leave every bucket skipped while the suite still reports green
 - An unknown status value returns `200` with an empty, well-formed result, and nothing claiming the bogus status (the filter does not error on bad input)
 
@@ -58,6 +59,10 @@ A reasonable subset was chosen over exhaustive coverage:
 - `GET /pet/findByTags`: same query/filter shape as `findByStatus`, so it would mostly re-test behavior already covered.
 - `POST /pet/{id}` (`updatePetWithForm`) and `POST /pet/{id}/uploadImage`: form-data / multipart endpoints whose extra plumbing isn't worth the marginal coverage here.
 - `api_key` / auth handling: the public sandbox doesn't enforce it.
+
+## Why the live sandbox, not a local Petstore
+
+The tests run against the public `petstore.swagger.io`, not a local instance. The official image (`docker run -d -p 8080:8080 swaggerapi/petstore`) would give a clean, deterministic, single-tenant server and remove nearly every workaround in the next section: the 5xx skips, the eventual-consistency polling, the foreign-data filtering. The live sandbox was chosen deliberately: it's the exact target named in the task, it needs zero setup to run, and (more useful for a QE exercise) it forces the suite to cope with a shared, sometimes-broken, multi-tenant environment, which is far closer to testing a real staging API than a pristine local mock. For a regression suite I owned long-term I'd flip this: pin to the Docker image (or a dedicated test tenant) for determinism, and keep only a thin smoke lane against the live host.
 
 ## Notes from testing a shared public sandbox
 

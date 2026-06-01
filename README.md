@@ -9,55 +9,13 @@ Both share one toolchain (TypeScript in strict mode, Zod for API contract valida
 
 ## Prerequisites
 
-You need two tools: **Node.js 20** and **Git**. Pick your OS below; if both are already installed, skip ahead. To confirm, run `node --version` (expect `v20.x`) and `git --version`. When copying a command, copy only what's **inside** each code box, not the fence lines that frame it. (On GitHub, the copy button in the box's top-right corner does this for you; in an editor, select just the command line.)
+You need **Node.js 20** (pinned in `.nvmrc`) and **Git**. Confirm with `node --version` (expect `v20.x`) and `git --version`. Install whichever you're missing with your platform's package manager, or grab the installers from [nodejs.org](https://nodejs.org) and [git-scm.com](https://git-scm.com/downloads):
 
-### macOS
+- **macOS** with [Homebrew](https://brew.sh): `brew install git node@20`
+- **Windows** with [winget](https://learn.microsoft.com/windows/package-manager/winget/): `winget install Git.Git OpenJS.NodeJS.LTS`
+- **Linux / macOS** with [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (distro Node is often older than 20): `nvm install 20` (install Git via `apt`/`dnf`)
 
-The quickest path is [Homebrew](https://brew.sh). macOS doesn't ship with it, so if `brew` isn't found (`command not found: brew`), install it first:
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-On Apple Silicon, the installer ends by printing two `echo`/`eval` lines that add `brew` to your PATH; run them (or reopen your terminal) so the next command is found. Then:
-
-```bash
-brew install git node@20
-```
-
-If you prefer Apple's own tools, `xcode-select --install` provides Git, and Node ships a macOS `.pkg` installer at [nodejs.org](https://nodejs.org), with no Homebrew needed.
-
-### Windows
-
-Use [winget](https://learn.microsoft.com/windows/package-manager/winget/) (built into Windows 10 and 11):
-
-```powershell
-winget install Git.Git OpenJS.NodeJS.LTS
-```
-
-Or download the installers directly: [Git for Windows](https://git-scm.com/download/win) (which also gives you Git Bash) and the Node.js LTS `.msi` from [nodejs.org](https://nodejs.org). Reopen your terminal afterward so the new commands are found.
-
-### Linux (Debian / Ubuntu)
-
-```bash
-sudo apt update && sudo apt install -y git
-```
-
-Distro Node packages are often older than 20, so install Node with [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) instead (works on macOS too):
-
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-# reopen your terminal, then:
-nvm install 20
-```
-
-On Fedora/RHEL, swap the first command for `sudo dnf install git`.
-
-### A note on the Node version
-
-This repo pins Node 20 in `.nvmrc`. If you use nvm (or [nvm-windows](https://github.com/coreybutler/nvm-windows)), run `nvm use` inside the project folder and it picks up the pin automatically; `npm run setup` also checks your version before doing anything.
-
-If you are new to the command line, you only need those two tools and the steps below. Every command runs in any terminal (macOS Terminal, Windows PowerShell or CMD, or Git Bash).
+With nvm, run `nvm use` in the project root to pick up the pinned version automatically; `npm run setup` also checks your Node version before doing anything.
 
 ## Quick start
 
@@ -73,7 +31,7 @@ npm test        # runs everything
 ## What a passing run looks like
 
 ```
-203 passed (≈50s)
+204 passed (≈50s)
 ```
 
 That's `npm test`, the blocking suite: the UI specs across four browsers, the API suite, and the one-time auth-setup step. The three seeded-defect checks aren't in this total; they run in a separate, non-blocking lane (below). (Exact counts can drift against the live sites, so treat the green summary line, not the number, as the verdict.)

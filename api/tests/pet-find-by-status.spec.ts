@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/api.fixtures';
+import { buildPet } from '../data/pet.factory';
 import { type PetStatus } from '../schemas/pet.schema';
 
 /**
@@ -12,9 +13,12 @@ test.describe('GET /pet/findByStatus', () => {
   const statuses: PetStatus[] = ['available', 'pending', 'sold'];
 
   for (const status of statuses) {
-    test(`returns only pets with status "${status}"`, async ({ petClient }) => {
+    test(`returns only pets with status "${status}"`, async ({ petClient }, testInfo) => {
       const res = await petClient.findByStatus(status);
-      console.log(`findByStatus(${status}) -> HTTP ${res.status()}`);
+      await testInfo.attach(`findByStatus(${status}) status`, {
+        body: String(res.status()),
+        contentType: 'text/plain',
+      });
 
       // The sandbox can 5xx for a bucket when another user's corrupt data fails
       // to serialize server-side (seen on both "sold" and "available"). That's an
@@ -42,6 +46,31 @@ test.describe('GET /pet/findByStatus', () => {
     });
   }
 
+  test('a created pet is returned in its own status bucket', async ({ petClient }) => {
+    // Positive membership: the filter must actually surface a pet we know exists,
+    // not merely avoid returning wrong-status ones; an always-empty response would
+    // pass the parametrized checks above vacuously. Create an 'available' pet (the
+    // bucket the suite already relies on being reachable), then poll until our id
+    // appears, since the sandbox is eventually consistent after a write.
+    const pet = buildPet({ status: 'available' });
+    expect((await petClient.create(pet)).status()).toBe(200);
+
+    await expect
+      .poll(
+        async () => {
+          const res = await petClient.findByStatus('available');
+          if (res.status() !== 200) return false;
+          const pets = (await res.json()) as Array<{ id?: number }>;
+          return pets.some((p) => p.id === pet.id);
+        },
+        {
+          timeout: 15_000,
+          message: 'created pet never appeared in findByStatus(available)',
+        },
+      )
+      .toBe(true);
+  });
+
   test('available inventory exists, so the filter contract is always exercised', async ({
     petClient,
   }) => {
@@ -64,12 +93,15 @@ test.describe('GET /pet/findByStatus', () => {
     expect(pets.length).toBeGreaterThan(0);
   });
 
-  test('an unknown status returns a well-formed, empty result', async ({ petClient }) => {
+  test('an unknown status returns a well-formed, empty result', async ({ petClient }, testInfo) => {
     // An unrecognized status is not a server error here: Petstore returns 200 with
     // an empty array rather than rejecting it. We assert the filter contract still
     // holds, i.e. nothing comes back claiming the bogus status.
     const res = await petClient.findByRawStatus('not-a-real-status');
-    console.log(`findByStatus(not-a-real-status) -> HTTP ${res.status()}`);
+    await testInfo.attach('findByStatus(not-a-real-status) status', {
+      body: String(res.status()),
+      contentType: 'text/plain',
+    });
 
     // Same 5xx-skip rule as the parametrized tests: an unhealthy upstream is an
     // environment issue, while a 4xx would be a real contract change.

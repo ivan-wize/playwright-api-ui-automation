@@ -30,17 +30,22 @@ test.describe('Pet endpoints: negative cases', () => {
     expect(body.message).toMatch(/not found/i);
   });
 
-  test('GET with a non-numeric id does not return a pet', async ({ petClient }) => {
+  test('GET with a non-numeric id does not return a pet', async ({ petClient }, testInfo) => {
     const res = await petClient.getByRawId('not-a-number');
 
     // The public Petstore is permissive about input, so instead of asserting a
-    // specific code we assert it doesn't succeed, and log the real status so the
+    // specific code we assert it doesn't succeed, and record the real status so the
     // actual behavior is documented rather than assumed.
-    console.log(`GET /pet/not-a-number -> ${res.status()}`);
+    await testInfo.attach('GET /pet/not-a-number status', {
+      body: String(res.status()),
+      contentType: 'text/plain',
+    });
     expect(res.status()).not.toBe(200);
   });
 
-  test('POST with a malformed body is rejected with an error envelope', async ({ petClient }) => {
+  test('POST with a malformed body is rejected with an error envelope', async ({
+    petClient,
+  }, testInfo) => {
     // The sandbox is permissive about *incomplete* pets (a POST that omits
     // name/photoUrls still returns 200), so we probe input it genuinely rejects:
     // an unparseable body, and a body that violates a field's type. Both come back
@@ -56,8 +61,17 @@ test.describe('Pet endpoints: negative cases', () => {
 
     for (const { label, body } of badBodies) {
       const res = await petClient.createRaw(body);
-      console.log(`POST /pet (${label}) -> ${res.status()}`);
-      // A rejection, not a silent 200 that creates a contract-violating pet.
+      await testInfo.attach(`POST malformed (${label}) status`, {
+        body: String(res.status()),
+        contentType: 'text/plain',
+      });
+      // The contract we guard: malformed input must NOT be silently accepted as a
+      // 200 that creates a contract-violating pet. We assert an error status and a
+      // well-formed { code, type, message } envelope. Note the public sandbox
+      // returns 500 here, not a clean 400; it errors on the input rather than
+      // validating it. Whether that *should* be a 400 is a server-side quality
+      // issue out of scope for this suite, so we accept any >= 400 and record the
+      // actual status above instead of pinning a specific code.
       expect(res.status(), label).toBeGreaterThanOrEqual(400);
       const err = apiErrorSchema.parse(await res.json());
       expect(err.code, label).toBeGreaterThanOrEqual(400);

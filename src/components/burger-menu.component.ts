@@ -27,7 +27,7 @@ export class BurgerMenuComponent {
    * Open the menu and wait for it to finish animating in.
    *
    * The links live in the DOM even while the menu is closed, just translated
-   * off-screen, so a closed link still reports as "visible" — visibility is a
+   * off-screen, so a closed link still reports as "visible"; visibility is a
    * false-positive signal and a click on it fails with "element is outside of
    * the viewport". The reliable signal is whether the link is actually on-screen
    * (in the viewport). The open button is a toggle, and it can misbehave: a tap
@@ -83,7 +83,7 @@ export class BurgerMenuComponent {
    * check can succeed against an unsettled menu, and the click that follows then
    * lands on a closing, off-screen link and times out. Instead we retry
    * "ensure on-screen, then click" as a single unit until the click lands on a
-   * settled link — the click's own actionability wait absorbs the animation.
+   * settled link; the click's own actionability wait absorbs the animation.
    */
   private async openAndClick(link: Locator): Promise<void> {
     await expect(async () => {
